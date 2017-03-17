@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vue.js"></script>
+    <script src="vue-router.js"></script>
+    <script src="vue-resource.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js" type="text/javascript" charset="utf-8"></script>
+
+    <style>
+        .loading {
+            margin: 30% auto;
+        }
+
+        .loading .icon {
+            width: 3em;
+            height: 3em;
+            vertical-align: middle;
+            fill: currentColor;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+<body>
+
+<div id="app">
+    <div class="loading">
+        <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4078">
+            <path d="M945.344 624.064v-471.68s-89.792-11.584-187.392-25.856S512.512 10.88 512.512 10.88L512 11.136 511.488 10.88S363.584 112.256 266.048 126.528s-187.328 25.856-187.328 25.856v471.68s-10.688 160.768 166.976 261.76c177.792 101.056 265.728 127.296 265.728 127.296L512 1012.864l0.512 0.256s88-26.24 265.728-127.296c177.792-100.992 167.104-261.76 167.104-261.76z"
+                  fill="#6DC08F" p-id="4079"></path>
+            <path d="M737.472 281.28l6.912 35.968c-102.208 8.32-204.608 14.528-307.072 18.624a881.024 881.024 0 0 0-6.976-36.544 3984.96 3984.96 0 0 0 307.136-18.048zM619.2 403.008l-33.92 15.552a754.048 754.048 0 0 0-34.176-69.632l31.616-14.08c14.4 24.768 26.496 47.488 36.48 68.16zM522.56 408l-33.152 17.536a571.52 571.52 0 0 0-37.504-67.648l31.04-15.488c14.08 21.376 27.328 43.2 39.616 65.6z"
+                  fill="#FFFFFF" p-id="4080"></path>
+            <path d="M426.752 429.12h215.488c17.728-31.104 34.432-62.784 49.664-95.168l38.528 16.448c-14.912 26.688-30.912 52.928-47.488 78.656h65.472V506.24H710.4v-42.112H464.896v42.112h-38.144V429.12zM361.216 699.2c0 35.136-16.32 52.736-49.088 53.056-10.752 0.32-23.808 0.32-39.104 0a503.296 503.296 0 0 0-6.08-41.536c16.064 1.344 28.736 1.92 38.08 1.92 13.056 0 19.52-6.272 19.52-19.072V551.36l-59.072 30.592-4.992-44.16c21.632-9.216 42.944-18.88 64.128-29.056V395.968h-60.096v-35.072h60.032V263.744h36.608v97.152h57.088v35.072h-57.024v94.976c16.064-8.192 32.704-16.832 50.048-25.792 1.024 16.768 2.368 30.08 4.096 40.064-18.112 9.152-36.16 18.368-54.144 27.584v166.4zM734.912 757.248c-60.416-11.904-111.232-32.128-152.512-61.12-46.656 29.312-103.168 50.816-169.6 64.192a464.768 464.768 0 0 0-24-36.544c64.448-10.496 118.656-28.032 162.752-52.544a292.224 292.224 0 0 1-74.88-114.88h-30.72v-35.072h262.464v34.624a324.864 324.864 0 0 1-91.456 115.968c39.552 22.848 88.512 37.888 146.56 44.864-10.944 14.656-20.544 28.224-28.608 40.512z"
+                  fill="#FFFFFF" p-id="4081"></path>
+            <path d="M515.008 556.352a236.736 236.736 0 0 0 69.568 93.504 252.736 252.736 0 0 0 79.232-93.504H515.008z"
+                  fill="#6DC08F" p-id="4082"></path>
+        </svg>
+    </div>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        mounted(){
+            this.GetCode()
+        },
+        data: {
+            BaseUrl: "https://open.weixin.qq.com/connect/oauth2/authorize?",
+            JsApiData:"",
+
+            GetCodes:{
+                //公众号的唯一标识
+                AppId:"wx6fcxxxx2757e70",
+                //授权后重定向的回调链接地址(填当前页)
+                GetCodes:"http://www.wuxxxxigo.com/demo/index.html",
+                //返回类型，请填写code
+                Response_type: "code",
+                //应用授权作用域，snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid）
+                Scope: "snsapi_base",
+                //重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+                State:"test",
+                //必须带此参数
+                Wechat_Redirect:"#wechat_redirect"
+            },
+
+        },
+        methods: {
+            //拼接获取code的地址
+            ReturnGetCodeUrl(){
+                return this.BaseUrl + "appid=" + this.GetCodes.AppId + "&redirect_uri="
+                    + this.GetCodes.GetCodes + "&response_type="
+                    + this.GetCodes.Response_type + "&scope=" + this.GetCodes.Scope + "&state="
+                    + this.GetCodes.State + this.GetCodes.Wechat_Redirect
+            },
+
+            //取localStorage数据
+            GetStorage(name){
+                return localStorage.getItem(name);
+            },
+
+            //写localStorage数据
+            SetStorage(name, value){
+                return localStorage.setItem(name, value);
+            },
+
+            //获取地址栏code参数
+            GetQueryString(name){
+                var url = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var newUrl = window.location.search.substr(1).match(url);
+                if (newUrl != null) {
+                    return unescape(newUrl[2]);
+                } else {
+                    return false;
+                }
+            },
+
+            //获取code
+            GetCode(){
+                //如果有code参数，那么GetOpenId获取openid
+                if (this.GetQueryString("code")) {
+                    console.log("有code")
+                    this.GetOpenId(this.GetQueryString("code"))
+                //没有那么重定向去获取
+                } else {
+                    console.log("没有code")
+                    /**
+                     * 具体参考微信获取code文档 ：http://mp.weixin.qq.com/wiki/17/c0f37d5704f0b64713d5d2c37b468d75.html
+                     * 官方接口：
+                     * https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect
+                     */
+                    //重定向去微信来获取code
+                     window.location = this.ReturnGetCodeUrl()
+                }
+            },
+
+            //通过上面的GetCode()取得code，然后通过code取openid
+            GetOpenId(code){
+                alert("GetOpenId获得的code为：" + code)
+
+                //判断本地localStorag是否已经有openid，有则不获取，没有就去获取
+                if (!this.GetStorage("EWE3234"))
+
+                    this.$http.get("http://139.xxx.210.190/tucekeji/index.php/Admin/GetOpenId/GetOpenid?codes=" + code)
+                        .then(function (success) {
+
+                            alert("success中的openid：" + success.data)
+                            this.SetStorage("EWE3234", JSON.stringify(success.data))
+
+                            this.WxPayBtn(this.GetStorage("EWE3234"))
+
+                        }, function (error) {
+                            alert(JSON.stringify(error))
+                        })
+                },
+                //从服务器去拿最终的jsapi支付参数
+                WxPayBtn(openid){
+                    alert("WxPayBtn"+openid)
+                    this.$http.get("http://www.wuxxxxo.com/wx/weixin/index.php?openid=" + openid + "&body=" + "测试标题" + "&total_fee=" + "1")
+                        .then(function (success) {
+
+                            //打印最终获得的jsapi支付参数
+                            alert(JSON.stringify(success.body))
+
+                            //将jsapi参数存到JsApiData中
+                            this.JsApiData = JSON.stringify(success.body);
+
+                            //调用jsApiCall传入jsapi参数，发起支付
+                            this.jsApiCall(this.JsApiData)
+
+                        },function (error) {
+                            alert(JSON.stringify(error))
+                        })
+                },
+                //正式发起微信支付
+                jsApiCall(jsapi){
+                    WeixinJSBridge.invoke(
+                        'getBrandWCPayRequest',
+                        jsapi,
+                        function (res) {
+                            if (res.err_msg == "get_brand_wcpay_request:ok") {
+                                alert("支付成功")
+
+                                //你的业务逻辑
+
+                            } else {
+                                alert("支付失败")
+                                alert(JSON.stringify(res.err_msg))
+                            }
+                        }
+                    );
+                }
+
+            }
+    })
+</script>
+
+</body>
+</html>
